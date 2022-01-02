@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UniRx;
 
 public abstract class Block : MonoBehaviour
 {
@@ -10,9 +9,13 @@ public abstract class Block : MonoBehaviour
 
     }
 
+    public void Blast()
+    {
+        Destroy(gameObject);
+    }
 
     private void OnMouseDown()
     {
-
+        // Blast();
     }
 }
