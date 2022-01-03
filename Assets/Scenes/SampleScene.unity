@@ -332,6 +332,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ColorPrefab: {fileID: 2073130785549436140, guid: bbf4cc60490bf674ea145f998f63c6ee, type: 3}
+  m_BombPrefab: {fileID: 9212596076076929837, guid: f54d01357c673004f8620cc163c3fc3e, type: 3}
   m_BlockParent: {fileID: 977666997}
 --- !u!4 &977666997
 Transform:

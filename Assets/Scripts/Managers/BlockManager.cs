@@ -13,14 +13,15 @@ public class BlockManager : MonoBehaviour
 
     [Header("Block Prefabs")]
     [SerializeField] private ColorBlock m_ColorPrefab;
+    [SerializeField] private BombBlock m_BombPrefab;
 
     [Header("Block Spawning")]
     [SerializeField] private Transform m_BlockParent;
 
     internal Block[,] Blocks;
 
-    private int _Row => PanelManager.Instance.GridPositions.GetLength(0);
-    private int _Column => PanelManager.Instance.GridPositions.GetLength(1);
+    internal int Row => PanelManager.Instance.GridPositions.GetLength(0);
+    internal int Column => PanelManager.Instance.GridPositions.GetLength(1);
 
     void Awake() => Instance = this;
 
@@ -34,7 +35,7 @@ public class BlockManager : MonoBehaviour
                     Destroy(child.gameObject);
                 }
 
-                Blocks = new Block[_Row, _Column];
+                Blocks = new Block[Row, Column];
 
                 CreateBlocks();
             }).AddTo(this);
@@ -42,29 +43,30 @@ public class BlockManager : MonoBehaviour
 
     private void CreateBlocks()
     {
-        for (int i = 0; i < _Row; i++)
+        for (int i = 0; i < Row; i++)
         {
-            for (int j = 0; j < _Column; j++)
+            for (int j = 0; j < Column; j++)
             {
-                Blocks[i, j] = CreateBlock(i, j);
+                Blocks[i, j] = CreateBlock(m_ColorPrefab, i, j);
             }
         }
     }
 
-    private Block CreateBlock(int _row, int _column)
+    private Block CreateBlock(Block _blockPrefab, int _row, int _column)
     {
-        var block = Instantiate(m_ColorPrefab, PanelManager.Instance.GridPositions[_row, _column], Quaternion.identity, m_BlockParent) as Block;
+        var block = Instantiate(_blockPrefab, PanelManager.Instance.GridPositions[_row, _column], Quaternion.identity, m_BlockParent) as Block;
         block.name = $"Block[{ _row },{ _column }]";
+        block.SetIndex(new Vector2Int(_row, _column));
         return block;
     }
 
     internal void RemoveBlock(Block _block)
     {
-        for (int i = 0; i < _Row; i++)
+        for (int i = 0; i < Row; i++)
         {
-            for (int j = 0; j < _Column; j++)
+            for (int j = 0; j < Column; j++)
             {
-                if(Blocks[i, j] == _block)
+                if (Blocks[i, j] == _block)
                 {
                     Blocks[i, j] = null;
                     Destroy(_block.gameObject);
@@ -75,19 +77,20 @@ public class BlockManager : MonoBehaviour
 
     internal void CollapseBlocks()
     {
-        for (int i = 0; i < _Row; i++)
+        for (int i = 0; i < Row; i++)
         {
-            for (int j = 0; j < _Column; j++)
+            for (int j = 0; j < Column; j++)
             {
                 if (Blocks[i, j] == null)
                 {
-                    foreach (int k in Enumerable.Range(j + 1, _Column))
+                    foreach (int k in Enumerable.Range(j + 1, Column))
                     {
-                        if (k < _Column && Blocks[i, k] != null)
+                        if (k < Column && Blocks[i, k] != null)
                         {
                             Blocks[i, k].Move(_COLLAPE_DURATION, new Vector2(i, j));
                             Blocks[i, j] = Blocks[i, k];
                             Blocks[i, j].name = $"Block[{ i },{ j }]";
+                            Blocks[i, j].SetIndex(new Vector2Int(i, j));
                             Blocks[i, k] = null;
                             break;
                         }
@@ -97,15 +100,27 @@ public class BlockManager : MonoBehaviour
         }
     }
 
-    internal void RefillBlocks()
+    internal void RefillBlocks(int _blastCount)
     {
-        for (int i = 0; i < _Row; i++)
+        bool spawnSpecialBlockAlready = false;
+        for (int i = 0; i < Row; i++)
         {
-            for (int j = 0; j < _Column; j++)
+            for (int j = 0; j < Column; j++)
             {
                 if (Blocks[i, j] == null)
                 {
-                    var block = CreateBlock(i, j);
+                    Block prefab = null;
+                    if (!spawnSpecialBlockAlready)
+                    {
+                        prefab = _blastCount >= 10 ? m_BombPrefab : _blastCount >= 6 ? m_BombPrefab : m_ColorPrefab as Block;
+                        spawnSpecialBlockAlready = true;
+                    }
+                    else
+                    {
+                        prefab = m_ColorPrefab;
+                    }
+
+                    var block = CreateBlock(prefab, i, j);
                     var topPos = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
                     Blocks[i, j] = block;
                     block.transform.position = new Vector2(block.transform.position.x, block.transform.position.y + topPos.y);
@@ -113,5 +128,31 @@ public class BlockManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    internal List<Block> GetBlocksAtRow(int _row)
+    {
+        List<Block> result = new List<Block>();
+        for (int i = 0; i < Column; i++)
+        {
+            if (Blocks[_row, i] != null)
+            {
+                result.Add(Blocks[_row, i]);
+            }
+        }
+        return result;
+    }
+
+    internal List<Block> GetBlocksAtColumn(int _column)
+    {
+        List<Block> result = new List<Block>();
+        for (int i = 0; i < Row; i++)
+        {
+            if (Blocks[i, _column] != null)
+            {
+                result.Add(Blocks[i, _column]);
+            }
+        }
+        return result;
     }
 }
