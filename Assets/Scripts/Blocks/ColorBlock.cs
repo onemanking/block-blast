@@ -29,4 +29,33 @@ public class ColorBlock : Block
                 break;
         }
     }
+
+    internal override List<Block> GetNearBlocks() => GetNearBlocks(_Color);
+    internal override List<Block> GetNearBlocks(BlockColor _color)
+    {
+        List<Block> result = new List<Block>();
+        if(_Color == _color && !IsChecking)
+        {
+            IsChecking = true;
+            result.Add(this);
+
+            if (GetBlock(Vector2.up) != null)
+            {
+                result.AddRange(GetBlock(Vector2.up).GetNearBlocks(_color));
+            }
+            if (GetBlock(Vector2.down) != null)
+            {
+                result.AddRange(GetBlock(Vector2.down).GetNearBlocks(_color));
+            }
+            if (GetBlock(Vector2.left) != null)
+            {
+                result.AddRange(GetBlock(Vector2.left).GetNearBlocks(_color));
+            }
+            if (GetBlock(Vector2.right) != null)
+            {
+                result.AddRange(GetBlock(Vector2.right).GetNearBlocks(_color));
+            }
+        }
+        return result;
+    }
 }

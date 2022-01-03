@@ -11,8 +11,9 @@ public class PanelManager : MonoBehaviour
     [SerializeField] private GameObject m_GridPrefab;
     [SerializeField] private IntReactiveProperty m_Row = new IntReactiveProperty(8);
     [SerializeField] private IntReactiveProperty m_Column = new IntReactiveProperty(8);
+    [SerializeField] private Transform m_GridParent;
 
-    public Transform[,] GridTransforms { get; private set; }
+    internal Vector2[,] GridPositions { get; private set; }
     private static Action _OnInitCompleted;
 
     void Awake() => Instance = this;
@@ -24,12 +25,12 @@ public class PanelManager : MonoBehaviour
 
     private void InitPanel()
     {
-        foreach (Transform child in transform)
+        foreach (Transform child in m_GridParent)
         {
             Destroy(child.gameObject);
         }
 
-        GridTransforms = new Transform[m_Row.Value, m_Column.Value];
+        GridPositions = new Vector2[m_Row.Value, m_Column.Value];
         transform.position = new Vector2((m_Row.Value - 1) / 2f * -1, (m_Column.Value - 1) / 2f * -1);
         Camera.main.orthographicSize = m_Row.Value > m_Column.Value ? m_Row.Value : m_Column.Value / 2f >= m_Row.Value ? (m_Column.Value + 1) / 2f : m_Row.Value;
 
@@ -37,10 +38,10 @@ public class PanelManager : MonoBehaviour
         {
             for (int j = 0; j < m_Column.Value; j++)
             {
-                var obj = Instantiate(m_GridPrefab, transform);
+                var obj = Instantiate(m_GridPrefab, m_GridParent);
                 obj.name = $"Grid[{ i },{ j }]";
                 obj.transform.localPosition = new Vector2(i, j);
-                GridTransforms[i, j] = obj.transform;
+                GridPositions[i, j] = obj.transform.position;
             }
         }
 
