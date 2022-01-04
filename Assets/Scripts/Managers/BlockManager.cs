@@ -103,13 +103,15 @@ public class BlockManager : MonoBehaviour
     internal void RefillBlocks(int _blastCount)
     {
         bool spawnSpecialBlockAlready = false;
+        bool canSpawnDisco = _blastCount >= 10;
+        bool canSpawnBomb = _blastCount >= 6;
         for (int i = 0; i < Row; i++)
         {
             for (int j = 0; j < Column; j++)
             {
                 if (Blocks[i, j] == null)
                 {
-                    Block prefab = RandomBlock(_blastCount, spawnSpecialBlockAlready);
+                    Block prefab = RandomBlock(canSpawnDisco, canSpawnBomb, spawnSpecialBlockAlready);
                     if (!spawnSpecialBlockAlready)
                         spawnSpecialBlockAlready = prefab.GetType() == typeof(BombBlock) || prefab.GetType() == typeof(DiscoBlock) ? true : false;
                     var block = CreateBlock(prefab, i, j);
@@ -122,14 +124,14 @@ public class BlockManager : MonoBehaviour
         }
     }
 
-    private Block RandomBlock(int _blastCount, bool _spawnSpecialBlockAlready)
+    private Block RandomBlock(bool _canSpawnDisco, bool _canSpawnBomb, bool _spawnSpecialBlockAlready)
     {
         int random = -1;
         if (!_spawnSpecialBlockAlready)
         {
-            if (_blastCount >= 10)
+            if (_canSpawnDisco)
                 random = UnityEngine.Random.Range(0, 3);
-            else if (_blastCount >= 6)
+            else if (_canSpawnBomb)
                 random = UnityEngine.Random.Range(0, 2);
         }
 
@@ -138,7 +140,7 @@ public class BlockManager : MonoBehaviour
             case 0:
                 return m_ColorPrefab;
             case 1:
-                return m_BombPrefab;
+                return _canSpawnDisco ? m_DiscoPrefab : m_BombPrefab as Block;
             case 2:
                 return m_DiscoPrefab;
             default:
