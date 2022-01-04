@@ -14,4 +14,14 @@ public class DiscoBlock : ColorBlock
         }
         return result;
     }
+
+    internal override List<Block> GetBlocks(BlockColor _color)
+    {
+        List<Block> result = new List<Block>();
+        if (Color == _color && !IsChecking)
+        {
+            result.AddRange(GetBlocks());
+        }
+        return result;
+    }
 }
