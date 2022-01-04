@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
@@ -103,7 +102,6 @@ public class BlockManager : MonoBehaviour
 
     internal void RefillBlocks(int _blastCount)
     {
-        // Fix specialBlocks always spawning at the left side of the RefillBlocks()
         bool spawnSpecialBlockAlready = false;
         for (int i = 0; i < Row; i++)
         {
@@ -111,17 +109,9 @@ public class BlockManager : MonoBehaviour
             {
                 if (Blocks[i, j] == null)
                 {
-                    Block prefab = null;
+                    Block prefab = RandomBlock(_blastCount, spawnSpecialBlockAlready);
                     if (!spawnSpecialBlockAlready)
-                    {
-                        prefab = _blastCount >= 10 ? m_DiscoPrefab : _blastCount >= 6 ? m_BombPrefab : m_ColorPrefab as Block;
-                        spawnSpecialBlockAlready = true;
-                    }
-                    else
-                    {
-                        prefab = m_ColorPrefab;
-                    }
-
+                        spawnSpecialBlockAlready = prefab.GetType() == typeof(BombBlock) || prefab.GetType() == typeof(DiscoBlock) ? true : false;
                     var block = CreateBlock(prefab, i, j);
                     var topPos = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
                     Blocks[i, j] = block;
@@ -129,6 +119,30 @@ public class BlockManager : MonoBehaviour
                     block.Move(_COLLAPE_DURATION, new Vector2(i, j));
                 }
             }
+        }
+    }
+
+    private Block RandomBlock(int _blastCount, bool _spawnSpecialBlockAlready)
+    {
+        int random = -1;
+        if (!_spawnSpecialBlockAlready)
+        {
+            if (_blastCount >= 10)
+                random = UnityEngine.Random.Range(0, 3);
+            else if (_blastCount >= 6)
+                random = UnityEngine.Random.Range(0, 2);
+        }
+
+        switch (random)
+        {
+            case 0:
+                return m_ColorPrefab;
+            case 1:
+                return m_BombPrefab;
+            case 2:
+                return m_DiscoPrefab;
+            default:
+                return m_ColorPrefab;
         }
     }
 
