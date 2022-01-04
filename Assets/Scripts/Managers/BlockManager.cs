@@ -14,6 +14,7 @@ public class BlockManager : MonoBehaviour
     [Header("Block Prefabs")]
     [SerializeField] private ColorBlock m_ColorPrefab;
     [SerializeField] private BombBlock m_BombPrefab;
+    [SerializeField] private DiscoBlock m_DiscoPrefab;
 
     [Header("Block Spawning")]
     [SerializeField] private Transform m_BlockParent;
@@ -102,6 +103,7 @@ public class BlockManager : MonoBehaviour
 
     internal void RefillBlocks(int _blastCount)
     {
+        // Fix specialBlocks always spawning at the left side of the RefillBlocks()
         bool spawnSpecialBlockAlready = false;
         for (int i = 0; i < Row; i++)
         {
@@ -112,7 +114,7 @@ public class BlockManager : MonoBehaviour
                     Block prefab = null;
                     if (!spawnSpecialBlockAlready)
                     {
-                        prefab = _blastCount >= 10 ? m_BombPrefab : _blastCount >= 6 ? m_BombPrefab : m_ColorPrefab as Block;
+                        prefab = _blastCount >= 10 ? m_DiscoPrefab : _blastCount >= 6 ? m_BombPrefab : m_ColorPrefab as Block;
                         spawnSpecialBlockAlready = true;
                     }
                     else
@@ -151,6 +153,23 @@ public class BlockManager : MonoBehaviour
             if (Blocks[i, _column] != null)
             {
                 result.Add(Blocks[i, _column]);
+            }
+        }
+        return result;
+    }
+
+    internal List<Block> GetBlocksWithColor(BlockColor _color)
+    {
+        List<Block> result = new List<Block>();
+        for (int i = 0; i < Row; i++)
+        {
+            for (int j = 0; j < Column; j++)
+            {
+                var block = Blocks[i, j] as ColorBlock;
+                if (block != null && block.Color == _color)
+                {
+                    result.Add(block);
+                }
             }
         }
         return result;

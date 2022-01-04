@@ -4,36 +4,36 @@ using UnityEngine;
 
 public class ColorBlock : Block
 {
+    internal BlockColor Color { get; private set; }
     private SpriteRenderer _SpriteRenderer;
-    private BlockColor _Color;
 
     void Start()
     {
         _SpriteRenderer = GetComponent<SpriteRenderer>();
 
-        _Color = (BlockColor)Random.Range(0, 4);
-        switch (_Color)
+        Color = (BlockColor)Random.Range(0, 4);
+        switch (Color)
         {
             case BlockColor.Red:
-                _SpriteRenderer.color = Color.red;
+                _SpriteRenderer.color = UnityEngine.Color.red;
                 break;
             case BlockColor.Blue:
-                _SpriteRenderer.color = Color.blue;
+                _SpriteRenderer.color = UnityEngine.Color.blue;
                 break;
             case BlockColor.Green:
-                _SpriteRenderer.color = Color.green;
+                _SpriteRenderer.color = UnityEngine.Color.green;
                 break;
             case BlockColor.Yellow:
-                _SpriteRenderer.color = Color.yellow;
+                _SpriteRenderer.color = UnityEngine.Color.yellow;
                 break;
         }
     }
 
-    internal override List<Block> GetBlocks() => GetBlocks(_Color);
+    internal override List<Block> GetBlocks() => GetBlocks(Color);
     internal override List<Block> GetBlocks(BlockColor _color)
     {
         List<Block> result = new List<Block>();
-        if (_Color == _color && !IsChecking)
+        if (Color == _color && !IsChecking)
         {
             IsChecking = true;
             result.Add(this);
